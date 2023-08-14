@@ -23,7 +23,7 @@ export async function gatherFLogs(directoryToUnzipped: string) {
 	console.log(`Inspecting and extracting FLogs from ${directoryToUnzipped}`);
 	
 	let output = execSync(`strings ${playerExecutable} | grep FLog::Output`, { encoding: "utf-8" });
-	flogs = output.split("\n");
+	flogs = output.split("\n").slice(0, -1); // Remove the last element because it's always a empty string
 
 	return flogs
 }
