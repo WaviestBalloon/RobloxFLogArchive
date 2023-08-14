@@ -34,11 +34,11 @@ server.get("/api/getarchive/:channel/:version", async (request: FastifyRequest, 
 			reply.code(404).send("Version not found.");
 		} else {
 			//@ts-ignore
-			reply.sendFile(`${request.params?.version}.json`, join(__dirname, "..", "data", request.params?.channel));
+			reply.send(JSON.parse(readFileSync(join(__dirname, "..", "data", request.params?.channel, `${request.params?.version}.json`), "utf-8")));
 		}
 	}
 });
-async function getArchiveStats() {
+async function getArchiveStats(hostname: string) {
 	let totalSize = 0;
 	let versionFiles = 0;
 	let flogArchives: any = {};
@@ -54,6 +54,7 @@ async function getArchiveStats() {
 					[version.split("/")[version.split("/").length - 1].split(".")[0]]: {
 						timestamp: JSON.parse(readFileSync(version, "utf-8")).timestamp,
 						size: statSync(version).size,
+						viewUrl: `https://${hostname}/api/getarchive/${channel}/${version.split("/")[version.split("/").length - 1].split(".")[0]}`
 					}
 				};
 			}
@@ -63,7 +64,7 @@ async function getArchiveStats() {
 	return { totalSize, versionFiles, flogArchives };
 }
 server.get("/api/info", async (request: FastifyRequest, reply: FastifyReply) => {
-	const { totalSize, versionFiles, flogArchives } = await getArchiveStats();
+	const { totalSize, versionFiles, flogArchives } = await getArchiveStats(request.hostname);
 
 	reply.send({
 		uptime: process.uptime(),
