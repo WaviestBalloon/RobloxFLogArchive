@@ -19,6 +19,10 @@ Although I don't see why you would want to, but if you insist, see below!
 - NPM ([PnpM is recommended](https://pnpm.io/))
 - A Linux-based server (I recommend any Debian-based distribution, such as [Ubuntu Server](https://ubuntu.com/download/server))
 
+1. Install project packages using your Node.js package manager of choice
+2. Run `startserver.sh` script
+3. (Optional) Run the script in a daemon like [pm2](https://pm2.io/) to constantly run the server in the background
+
 ## FLogs that mention `CLIxxxxx`
 🤫
 
