@@ -1,0 +1,10 @@
+{
+	"channelsToCheck": [
+		"LIVE",
+		"zintegration",
+		"zintegration1",
+		"zprojecteliu"
+	],
+	"requestsFiled": 0,
+	"flogsFiled": 0
+}
