@@ -15,9 +15,9 @@ Although I don't see why you would want to, but if you insist, see below!
 
 ### Requirements
 
-- Node.js
+- Node.js ([I recommend using NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
 - NPM ([PnpM is recommended](https://pnpm.io/))
-- A Linux-based server (I recommend any Debian-based distribution)
+- A Linux-based server (I recommend any Debian-based distribution, such as [Ubuntu Server](https://ubuntu.com/download/server))
 
 ## FLogs that mention `CLIxxxxx`
 🤫
