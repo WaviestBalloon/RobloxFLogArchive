@@ -22,14 +22,23 @@ const axiosInstance = axios.create({
 const deploymentTempDirectory = join(__dirname, "..", "temp");
 
 server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
-	reply.send("Hello World!");
+	reply.send("Send a GET request to /api/info to get information about the archive.");
 });
-
-server.get("/api", async (request: FastifyRequest, reply: FastifyReply) => {
-	reply.send("Hello World!");
+server.get("/api/getarchive/:channel/:version", async (request: FastifyRequest, reply: FastifyReply) => {
+	//@ts-ignore
+	if (!configurationJson.channelsToCheck.includes(request.params?.channel)) {
+		reply.code(404).send("Channel not found.");
+	} else {
+		//@ts-ignore
+		if (!existsSync(join(__dirname, "..", "data", request.params?.channel, `${request.params?.version}.json`))) {
+			reply.code(404).send("Version not found.");
+		} else {
+			//@ts-ignore
+			reply.sendFile(`${request.params?.version}.json`, join(__dirname, "..", "data", request.params?.channel));
+		}
+	}
 });
-
-server.get("/api/info", async (request: FastifyRequest, reply: FastifyReply) => {
+async function getArchiveStats() {
 	let totalSize = 0;
 	let versionFiles = 0;
 	let flogArchives: any = {};
@@ -37,26 +46,32 @@ server.get("/api/info", async (request: FastifyRequest, reply: FastifyReply) => 
 		readdirSync(join(__dirname, "..", "data", channel)).forEach(async (version) => {
 			version = join(__dirname, "..", "data", channel, version);
 			if (version.endsWith(".json")) {
+				console.log(`Found version ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
 				totalSize += statSync(version).size;
 				versionFiles += 1;
 				flogArchives[channel] = {
 					...flogArchives[channel],
 					[version.split("/")[version.split("/").length - 1].split(".")[0]]: {
+						timestamp: JSON.parse(readFileSync(version, "utf-8")).timestamp,
 						size: statSync(version).size,
-						humanReadableSize: await humanFileSize(statSync(version).size)
 					}
 				};
 			}
 		});
 	});
-	
+
+	return { totalSize, versionFiles, flogArchives };
+}
+server.get("/api/info", async (request: FastifyRequest, reply: FastifyReply) => {
+	const { totalSize, versionFiles, flogArchives } = await getArchiveStats();
+
 	reply.send({
 		uptime: process.uptime(),
 		channelsTracked: configurationJson.channelsToCheck,
 		versionsCurrentlyArchived: versionFiles,
 		archiveDataSize: {
 			bytes: totalSize,
-			humanReadable: humanFileSize(totalSize)
+			humanReadable: await humanFileSize(totalSize)
 		},
 		versionsAvailableInArchive: flogArchives
 	});
