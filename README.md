@@ -2,6 +2,7 @@
 Roblox FLog Archive is a small service to archive plaintext FLogs in the Roblox Player binary.
 
 You can view the archive overview at https://roblox-flog-archive.wav.blue/api/info
+
 A proper frontend will be created at a later date!
 
 ## Why though??
