@@ -103,7 +103,7 @@ server.addHook("onRequest", (request: FastifyRequest, reply: FastifyReply, done)
 	console.log(`${request.method} ${request.url} by ${request.headers["x-forwarded-for"] || request.ip}`);
 	done();
 });
-server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {
+server.listen({ port: process.env.PORT || 3000, host: "0.0.0.0" }, (err, address) => {
 	if (err) throw err;
 	console.log(`Server listening on ${address}`);
 });
