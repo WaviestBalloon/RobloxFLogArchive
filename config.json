@@ -1,10 +1,1 @@
-{
-	"channelsToCheck": [
-		"LIVE",
-		"zintegration",
-		"zintegration1",
-		"zprojecteliu"
-	],
-	"requestsFiled": 0,
-	"flogsFiled": 0
-}
+{"channelsToCheck":["LIVE","zintegration","zintegration1","zprojecteliu", "zsocialteam", "zavatarteam", "zavatarteam2"],"requestsFiled":0,"flogsFiled":0,"latestArchival":"","hostname":"null"}

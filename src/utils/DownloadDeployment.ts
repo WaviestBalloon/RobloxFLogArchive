@@ -6,7 +6,7 @@ const __dirname = dirname(__filename);
 const DeploymentCDNURL = "https://setup.rbxcdn.com/";
 const ChannelDeploymentCDNURL = "https://roblox-setup.cachefly.net/channel/";
 
-export default async function download(versionHash: string, channel: string, axiosInstance: any, tempDirectory: string) {
+export default async function download(versionHash: string, channel: string, axiosInstance: any, tempDirectory: string): Promise<string> {
 	console.log(`Downloading ${DeploymentCDNURL}${channel}/${versionHash}-RobloxApp.zip...`)
 	const appZipDownload = await axiosInstance.get(channel !== "LIVE" ? `${ChannelDeploymentCDNURL}${channel}/${versionHash}-RobloxApp.zip` : `${DeploymentCDNURL}${versionHash}-RobloxApp.zip`, {
 		responseType: "arraybuffer"

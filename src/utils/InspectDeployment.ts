@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export async function extractArchive(zipPath: string, tempDirectory: string) {
+export async function extractArchive(zipPath: string, tempDirectory: string): Promise<string> {
 	const id = Date.now();
 	console.log(`Extracting ${zipPath}`);
 	mkdirSync(join(zipPath, "..", `temp-${id}`), { recursive: true });
@@ -17,13 +17,12 @@ export async function extractArchive(zipPath: string, tempDirectory: string) {
 	return join(tempDirectory, `temp-${id}`);
 }
 
-export async function gatherFLogs(directoryToUnzipped: string) {
+export async function gatherFLogs(directoryToUnzipped: string): Promise<Array<string>> {
 	const playerExecutable = join(directoryToUnzipped, "RobloxPlayerBeta.exe");
-	let flogs = {};
 	console.log(`Inspecting and extracting FLogs from ${directoryToUnzipped}`);
 	
 	let output = execSync(`strings ${playerExecutable} | grep FLog::Output`, { encoding: "utf-8" });
-	flogs = output.split("\n").slice(0, -1); // Remove the last element because it's always a empty string
+	let flogs = output.split("\n").slice(0, -1); // Remove the last element because it's always a empty string
 
 	return flogs
 }
