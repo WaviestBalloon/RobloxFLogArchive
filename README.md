@@ -7,8 +7,10 @@ A proper frontend will be created at a later date!
 
 ## Why though??
 
-Roblox engineers sometimes add little easter eggs that get appended to your Roblox log files during client initialisation, I always enjoyed seeing them whilst inspecting my log files and have decided to start a archival program to keep a history of all `FLog`s found in the Player binary.
-As a bonus, normal `FLog`s will not be excluded from being archived. (Because that would be too much work for my poor brain x3)
+Roblox engineers sometimes add little easter eggs that get appended to your Roblox log files during client initialisation, I always enjoyed seeing them whilst inspecting my log files and have decided to start a archival program to keep a history of all FLogs found in the Player binary.
+As a bonus, normal FLogs will not be excluded from being archived. (Because that would be too much work for my poor brain x3)
+
+Additionally, I may also expand FLog archives to not just the Player binary but also the Studio binary.
 
 ## Starting your own instance
 
@@ -24,8 +26,14 @@ Although I don't see why you would want to, but if you insist, see below!
 - A Linux-based server (I recommend any Debian-based distribution, such as [Ubuntu Server](https://ubuntu.com/download/server))
 
 1. Install project packages using your Node.js package manager of choice
-2. Run `startserver.sh` script
-3. (Optional) Run the script in a daemon like [pm2](https://pm2.io/) to constantly run the server in the background
+2. Make a copy of `.env.example` and name it `.env`, modify it to your liking
+3. Run `startserver.sh` script
+4. (Optional) Run the script in a daemon like [pm2](https://pm2.io/) to constantly run the server in the background
+
+Optionally, you can set up Discord webhook notifications for when new FLogs are archived!
+`WEBHOOKS_ENABLED` - Controls whether notifications should be active
+`DISCORD_WEBHOOK_URL` - The URL of the Discord webhook
+`ROLE_TO_PING` - Set to `0` if you do not want to ping any role, if you do want to ping a role change it to the Role ID and make sure the role is pingable
 
 ## FLogs that mention `CLIxxxxx`
 🤫
