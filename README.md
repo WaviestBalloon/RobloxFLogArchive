@@ -31,9 +31,9 @@ Although I don't see why you would want to, but if you insist, see below!
 4. (Optional) Run the script in a daemon like [pm2](https://pm2.io/) to constantly run the server in the background
 
 Optionally, you can set up Discord webhook notifications for when new FLogs are archived!
-`WEBHOOKS_ENABLED` - Controls whether notifications should be active
-`DISCORD_WEBHOOK_URL` - The URL of the Discord webhook
-`ROLE_TO_PING` - Set to `0` if you do not want to ping any role, if you do want to ping a role change it to the Role ID and make sure the role is pingable
+- `WEBHOOKS_ENABLED` - Controls whether notifications should be active
+- `DISCORD_WEBHOOK_URL` - The URL of the Discord webhook
+- `ROLE_TO_PING` - Set to `0` if you do not want to ping any role, if you do want to ping a role change it to the Role ID and make sure the role is pingable
 
 ## FLogs that mention `CLIxxxxx`
 🤫
