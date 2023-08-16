@@ -36,9 +36,9 @@ Optionally, you can set up Discord webhook notifications for when new FLogs are 
 - `ROLE_TO_PING` - Set to `0` if you do not want to ping any role, if you do want to ping a role change it to the Role ID and make sure the role is pingable
 
 > [!WARNING]
-> **Do not modify `config.json` during the server runtime!** It may lead to any changes made being discarded! Make sure you stop the server process, make changes to the file and then restart the process again.
+> **Do not modify `config.json` during the server runtime!** It may lead to any changes made being discarded/overwritten! Make sure you stop the server process, make changes to the file and then restart the process again.
 >
-> **Do not modify the `latestArchival` and `hostname` values in the configuration file** with one exception, if you have changed the (sub)domain that points to the server, change `hostname` value to be "null", start the server and make a request to the new (sub)domain, the `hostname` value should be changed to the new (sub)domain that you used to sent the request.
+> **Do not modify the `latestArchival` and `hostname` values in the configuration file** with one exception, if you have changed the (sub)domain that points to the server, change `hostname` value to be "null", start the server and make a request to the new (sub)domain, the `hostname` value should be updated to the new (sub)domain that you used to sent the request.
 
 ## FLogs that mention `CLIxxxxx`
 🤫
