@@ -158,7 +158,7 @@ async function checkVersion() {
 			if (webhooksEnabled === true) {
 				const statInfo = statSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`));
 				const archiveInfo = await getArchiveStats();
-				if (!diff) diff = diff.join("\n");
+				if (diff) { diff = diff.join("\n") } else { diff = "No diff available." };
 
 				console.log("Sending webhook...");
 				axios.post(process.env.DISCORD_WEBHOOK_URL, {
