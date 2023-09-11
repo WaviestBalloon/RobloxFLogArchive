@@ -1,12 +1,9 @@
-import { unlinkSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
-import { execSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default async function humanFileSize(bytes: number, si=false, dp=1) {
+export async function humanFileSize(bytes: number, si=false, dp=1) {
 	const thresh = si ? 1000 : 1024
 	
 	if (Math.abs(bytes) < thresh) {

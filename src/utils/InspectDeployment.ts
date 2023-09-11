@@ -1,21 +1,8 @@
-import { unlinkSync, mkdirSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-export async function extractArchive(zipPath: string, tempDirectory: string): Promise<string> {
-	const id = Date.now();
-	console.log(`Extracting ${zipPath}`);
-	mkdirSync(join(zipPath, "..", `temp-${id}`), { recursive: true });
-	console.log(zipPath)
-	execSync(`unzip -o ${zipPath} -d ${join(zipPath, "..", `temp-${id}`)}`);
-	console.log(`Removing ${zipPath}`);
-	unlinkSync(zipPath);
-
-	return join(tempDirectory, `temp-${id}`);
-}
 
 export async function gatherFLogs(directoryToUnzipped: string): Promise<Array<string>> {
 	const playerExecutable = join(directoryToUnzipped, "RobloxPlayerBeta.exe");

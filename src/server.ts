@@ -2,9 +2,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import axios from "axios";
-import download from "./utils/DownloadDeployment.js";
-import { extractArchive, gatherFLogs } from "./utils/InspectDeployment.js";
-import humanFileSize from "./utils/Filesize.js";
+import { extractArchive, download } from "./utils/Deployment.js";
+import { gatherFLogs } from "./utils/InspectDeployment.js";
+import { generateDiff } from "./utils/Diff.js";
+import { humanFileSize } from "./utils/Filesize.js";
 import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, statSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { Buffer } from "node:buffer";
@@ -13,8 +14,8 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-if (!existsSync("data")) { mkdirSync("data"); }
-if (!existsSync("temp")) { mkdirSync("temp"); }
+if (!existsSync("data")) mkdirSync("data");
+if (!existsSync("temp")) mkdirSync("temp");
 let configurationJson = JSON.parse(readFileSync(join(__dirname, "..", "config.json"), "utf-8"));
 let webhooksEnabled = false;
 let hostname = configurationJson.hostname;
@@ -58,7 +59,7 @@ async function getArchiveStats() {
 	readdirSync(join(__dirname, "..", "data")).forEach(async (channel) => {
 		readdirSync(join(__dirname, "..", "data", channel)).forEach(async (version) => {
 			version = join(__dirname, "..", "data", channel, version);
-			if (version.endsWith(".json")) {
+			if (version.endsWith(".json") && !version.includes("channel_archive_meta")) {
 				console.log(`Found archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
 				const archiveFile = JSON.parse(readFileSync(version, "utf-8"));
 				totalSize += statSync(version).size;
@@ -103,7 +104,7 @@ server.addHook("onRequest", (request: FastifyRequest, reply: FastifyReply, done)
 	console.log(`${request.method} ${request.url} by ${request.headers["x-forwarded-for"] || request.ip}`);
 	done();
 });
-server.listen({ port: process.env.PORT || 3000, host: "0.0.0.0" }, (err, address) => {
+server.listen({ port: Number(process.env.PORT) || 3000, host: "0.0.0.0" }, (err, address) => {
 	if (err) throw err;
 	console.log(`Server listening on ${address}`);
 });
@@ -117,17 +118,17 @@ async function checkVersion() {
 
 		if (!existsSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`))) {
 			const startTimer = Date.now();
+
 			const location = await download(latestVersionOnChannel.data.clientVersionUpload, channel, axiosInstance, deploymentTempDirectory);
 			console.log(`Downloaded version ${latestVersionOnChannel.data.clientVersionUpload} to ${location}...`);
-			
 			const extractionLocation = await extractArchive(location, deploymentTempDirectory);
 			console.log(`Extracted version ${latestVersionOnChannel.data.clientVersionUpload} to ${extractionLocation}...`);
-			
 			const flogs = await gatherFLogs(extractionLocation);
 			console.log(`Gathered FLogs for version ${latestVersionOnChannel.data.clientVersionUpload} to ${join(__dirname, "..", "data", "flogs", latestVersionOnChannel.data.clientVersionUpload)}...`);
-			const flogHash = createHash("md5").update(Buffer.from(flogs)).digest("hex")
+			const flogHash = createHash("md5").update(Buffer.from(flogs)).digest("hex");
 			console.log(`FLog hash for version ${latestVersionOnChannel.data.clientVersionUpload} is ${flogHash}!`);
 
+			console.log(`Archiving version ${latestVersionOnChannel.data.clientVersionUpload}...`);
 			if (!existsSync(join(__dirname, "..", "data", channel))) {
 				mkdirSync(join(__dirname, "..", "data", channel));
 			}
@@ -141,13 +142,24 @@ async function checkVersion() {
 				hash: flogHash,
 				flogs: flogs
 			}));
-			console.log(`Archived version ${latestVersionOnChannel.data.clientVersionUpload}! Updating config...`);
-			configurationJson.latestArchival = `${channel}/${latestVersionOnChannel.data.clientVersionUpload}`;
-			writeFileSync(join(__dirname, "..", "config.json"), JSON.stringify(configurationJson));
+			console.log(`Archived version ${latestVersionOnChannel.data.clientVersionUpload}!`);
+			
+			let diff: any
+			if (existsSync(join(__dirname, "..", "data", channel, `channel_archive_meta.json`))) {
+				const previousArchiveMeta = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `channel_archive_meta.json`), "utf-8"));
+				const previousFlogs = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `${previousArchiveMeta.latestVersion}.json`), "utf-8")).flogs;
+				diff = await generateDiff(flogs, previousFlogs);
+				console.log(`Generated diff for version ${latestVersionOnChannel.data.clientVersionUpload}!`);
+				writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-diff.txt`), diff.join("\n"));
+			} else {
+				console.warn(`channel_archive_meta.json does not exist for channel ${channel} therefore a diff cannot be generated! It will be created after configuration update...`);
+			}
 
 			if (webhooksEnabled === true) {
 				const statInfo = statSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`));
 				const archiveInfo = await getArchiveStats();
+				if (!diff) diff = diff.join("\n");
+
 				console.log("Sending webhook...");
 				axios.post(process.env.DISCORD_WEBHOOK_URL, {
 					content: process.env.ROLE_TO_PING !== "0" ? `<@&${process.env.ROLE_TO_PING}>` : null,
@@ -159,12 +171,27 @@ async function checkVersion() {
 								text: "Roblox FLog Archival Program - Operation completed in " + (Date.now() - startTimer) + "ms",
 								icon_url: null
 							}
+						},
+						{
+							description: `\`\`\`diff\n${diff}\n\`\`\``,
 						}
 					],
 				}).catch((err) => {
 					console.warn(`Failed to send webhook: ${err}`);
+					axios.post(process.env.DISCORD_WEBHOOK_URL, {
+						content: `Failed to send webhook: ${err}! Please check the logs for more information.${process.env.ROLE_TO_PING !== "0" ? ` <@&${process.env.ROLE_TO_PING}>` : null}`,
+					})
 				});
 			}
+
+			console.log("Updating channel_archive_meta.json...");
+			writeFileSync(join(__dirname, "..", "data", channel, "channel_archive_meta.json"), JSON.stringify({
+				lastWrite: Date.now(),
+				latestVersion: latestVersionOnChannel.data.clientVersionUpload
+			}));
+			console.log("Updating config.json...");
+			configurationJson.latestArchival = `${channel}/${latestVersionOnChannel.data.clientVersionUpload}`;
+			writeFileSync(join(__dirname, "..", "config.json"), JSON.stringify(configurationJson));
 
 			console.log("Cleaning up temporary file...");
 			rmSync(extractionLocation, { recursive: true });
@@ -173,6 +200,7 @@ async function checkVersion() {
 		}
 	}
 }
+
 checkVersion();
 console.log("Starting version check interval...");
 setInterval(checkVersion, 150000); // Every 2.5 minutes

@@ -21,7 +21,7 @@ Although I don't see why you would want to, but if you insist, see below!
 
 ### Requirements
 
-- Node.js ([I recommend using NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
+- Node.js ([NVM is recommended](https://github.com/nvm-sh/nvm#installing-and-updating))
 - NPM ([PnpM is recommended](https://pnpm.io/))
 - A Linux-based server (I recommend any Debian-based distribution, such as [Ubuntu Server](https://ubuntu.com/download/server))
 
@@ -39,12 +39,6 @@ Optionally, you can set up Discord webhook notifications for when new FLogs are 
 > **Do not modify `config.json` during the server runtime!** It may lead to any changes made being discarded/overwritten! Make sure you stop the server process, make changes to the file and then restart the process again.
 >
 > **Do not modify the `latestArchival` and `hostname` values in the configuration file** with one exception, if you have changed the (sub)domain that points to the server, change `hostname` value to be "null", start the server and make a request to the new (sub)domain, the `hostname` value should be updated to the new (sub)domain that you used to sent the request.
-
-## FLogs that mention `CLIxxxxx`
-🤫
-
-- `Hello from CLI72702`
-- `Hello from CLI73184`
 
 ## Honorable mentions
 
