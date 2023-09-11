@@ -150,7 +150,7 @@ async function checkVersion() {
 				const previousFlogs = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `${previousArchiveMeta.latestVersion}.json`), "utf-8")).flogs;
 				diff = await generateDiff(flogs, previousFlogs);
 				console.log(`Generated diff for version ${latestVersionOnChannel.data.clientVersionUpload}!`);
-				writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-diff.txt`), diff.join("\n"));
+				writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.txt`), diff.join("\n"));
 			} else {
 				console.warn(`channel_archive_meta.json does not exist for channel ${channel} therefore a diff cannot be generated! It will be created after configuration update...`);
 			}
