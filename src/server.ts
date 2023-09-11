@@ -158,7 +158,7 @@ async function checkVersion() {
 			if (webhooksEnabled === true) {
 				const statInfo = statSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`));
 				const archiveInfo = await getArchiveStats();
-				if (diff) { diff = diff.join("\n") } else { diff = "No diff available." };
+				if (!Array.isArray(diff) || diff.length == 0) { diff = "No diff available." } else { diff = diff.join("\n") };
 
 				console.log("Sending webhook(s)...");
 				let rolesToPing = process.env.ROLE_TO_PING.split(",");

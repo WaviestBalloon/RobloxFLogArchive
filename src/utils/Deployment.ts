@@ -8,12 +8,13 @@ const DeploymentCDNURL = "https://setup.rbxcdn.com/";
 const ChannelDeploymentCDNURL = "https://roblox-setup.cachefly.net/channel/";
 
 export async function download(versionHash: string, channel: string, axiosInstance: any, tempDirectory: string): Promise<string> {
-	console.log(`Downloading ${DeploymentCDNURL}${channel}/${versionHash}-RobloxApp.zip...`)
-	const appZipDownload = await axiosInstance.get(channel !== "LIVE" ? `${ChannelDeploymentCDNURL}${channel}/${versionHash}-RobloxApp.zip` : `${DeploymentCDNURL}${versionHash}-RobloxApp.zip`, {
+	let downloadURL = channel !== "LIVE" ? `${ChannelDeploymentCDNURL}${channel}/${versionHash}-RobloxApp.zip` : `${DeploymentCDNURL}${versionHash}-RobloxApp.zip`
+	console.log(`Downloading ${downloadURL}...`)
+	const appZipDownload = await axiosInstance.get(downloadURL, {
 		responseType: "arraybuffer"
 	}).catch((err: any) => {
-		console.warn(`Failed to download ${DeploymentCDNURL}${channel}/${versionHash}-RobloxApp.zip!`);
-		console.warn(Buffer.from(err.response.data).toString());
+		console.warn(`Failed to download ${downloadURL}!`);
+		console.warn(err);
 	});
 	
 	if (!appZipDownload?.data) return;
