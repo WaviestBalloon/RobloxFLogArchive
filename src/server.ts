@@ -160,28 +160,37 @@ async function checkVersion() {
 				const archiveInfo = await getArchiveStats();
 				if (diff) { diff = diff.join("\n") } else { diff = "No diff available." };
 
-				console.log("Sending webhook...");
-				axios.post(process.env.DISCORD_WEBHOOK_URL, {
-					content: process.env.ROLE_TO_PING !== "0" ? `<@&${process.env.ROLE_TO_PING}>` : null,
-					embeds: [
-						{
-							title: "📥 New FLog archived!",
-							description: `Archive has been created for version \`${latestVersionOnChannel.data.clientVersionUpload}\` in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nFLog hash: \`${flogHash}\`\n\nTotal archive storage size is now ${await humanFileSize(archiveInfo.totalSize)}.\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
-							footer: {
-								text: "Roblox FLog Archival Program - Operation completed in " + (Date.now() - startTimer) + "ms",
-								icon_url: null
+				console.log("Sending webhook(s)...");
+				let rolesToPing = process.env.ROLE_TO_PING.split(",");
+				let webhooks = process.env.DISCORD_WEBHOOK_URL.split(",");
+				let webhookIndex = 0;
+				if (rolesToPing.length !== webhooks.length) { console.warn("The amount of roles to ping does not match the amount of webhooks! Please check your .env file!"); }
+				
+				for (const webhook of webhooks) {
+					await axios.post(webhook, {
+						content: rolesToPing[webhookIndex] !== "0" ? `<@&${rolesToPing[webhookIndex]}>` : null,
+						embeds: [
+							{
+								title: "📥 New FLog archive!",
+								description: `Archive has been created for version \`${latestVersionOnChannel.data.clientVersionUpload}\` in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nFLog hash: \`${flogHash}\`\n\nTotal archive storage size is now ${await humanFileSize(archiveInfo.totalSize)}.\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
+								footer: {
+									text: "Roblox FLog Archival Program - Operation completed in " + (Date.now() - startTimer) + "ms",
+									icon_url: null
+								}
+							},
+							{
+								description: `\`\`\`diff\n${diff}\n\`\`\``,
 							}
-						},
-						{
-							description: `\`\`\`diff\n${diff}\n\`\`\``,
-						}
-					],
-				}).catch((err) => {
-					console.warn(`Failed to send webhook: ${err}`);
-					axios.post(process.env.DISCORD_WEBHOOK_URL, {
-						content: `Failed to send webhook: ${err}! Please check the logs for more information.${process.env.ROLE_TO_PING !== "0" ? ` <@&${process.env.ROLE_TO_PING}>` : null}`,
-					})
-				});
+						],
+					}).catch((err) => {
+						console.warn(`Failed to send webhook: ${err}`);
+						axios.post(process.env.DISCORD_WEBHOOK_URL, {
+							content: `Failed to send webhook: ${err}! Please check the logs for more information.${process.env.ROLE_TO_PING !== "0" ? ` <@&${process.env.ROLE_TO_PING}>` : null}`,
+						})
+					});
+
+					webhookIndex++;
+				}
 			}
 
 			console.log("Updating channel_archive_meta.json...");
