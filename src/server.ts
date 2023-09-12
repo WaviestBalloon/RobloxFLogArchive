@@ -154,6 +154,7 @@ async function checkVersion() {
 				if (configurationJson.doNotArchiveIfPreviousArchiveFLogsMatchDiff) {
 					if (diff.length == 0) {
 						console.log("Diff is empty, skipping archival...");
+						writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), "SKIPPED");
 						continue;
 					}
 				}
