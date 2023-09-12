@@ -178,7 +178,7 @@ async function checkVersion() {
 						embeds: [
 							{
 								title: "📥 New FLog archive!",
-								description: `Archive has been created for \`${latestVersionOnChannel.data.clientVersionUpload}\` (\`${latestVersionOnChannel.data.version}\`) in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nHash: \`${flogHash}\`\nArchive size: \`${await humanFileSize(archiveInfo.totalSize)}\`\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
+								description: `Archive has been created for \`${latestVersionOnChannel.data.clientVersionUpload}\` (\`${latestVersionOnChannel.data.version}\`) in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nHash: \`${flogHash}\`\nTotal archive storage size: \`${await humanFileSize(archiveInfo.totalSize)}\`\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
 								footer: {
 									text: "Roblox FLog Archival Program - Operation completed in " + (Date.now() - startTimer) + "ms",
 									icon_url: null
