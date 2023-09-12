@@ -6,7 +6,7 @@ import { extractArchive, download } from "./utils/Deployment.js";
 import { gatherFLogs } from "./utils/InspectDeployment.js";
 import { generateDiff } from "./utils/Diff.js";
 import { humanFileSize } from "./utils/Filesize.js";
-import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, statSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, statSync, rmSync, createReadStream } from "node:fs";
 import { createHash } from "node:crypto";
 import { Buffer } from "node:buffer";
 import { dirname, join } from "node:path";
@@ -145,12 +145,14 @@ async function checkVersion() {
 			console.log(`Archived version ${latestVersionOnChannel.data.clientVersionUpload}!`);
 			
 			let diff: any
+			let diff_file_location: any
 			if (existsSync(join(__dirname, "..", "data", channel, `channel_archive_meta.json`))) {
 				const previousArchiveMeta = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `channel_archive_meta.json`), "utf-8"));
 				const previousFlogs = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `${previousArchiveMeta.latestVersion}.json`), "utf-8")).flogs;
 				diff = await generateDiff(flogs, previousFlogs);
 				console.log(`Generated diff for version ${latestVersionOnChannel.data.clientVersionUpload}!`);
-				writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.txt`), diff.join("\n"));
+				diff_file_location = join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.txt`);
+				writeFileSync(diff_file_location, diff.join("\n"));
 			} else {
 				console.warn(`channel_archive_meta.json does not exist for channel ${channel} therefore a diff cannot be generated! It will be created after configuration update...`);
 			}
@@ -167,6 +169,10 @@ async function checkVersion() {
 				if (rolesToPing.length !== webhooks.length) { console.warn("The amount of roles to ping does not match the amount of webhooks! Please check your .env file!"); }
 				
 				for (const webhook of webhooks) {
+					if (diff.length > 4096) {
+						diff = "Diff too large to send! A follow-up message will be posted with diff attached as a file... D:";
+					}
+
 					await axios.post(webhook, {
 						content: rolesToPing[webhookIndex] !== "0" && diff !== "No diff available :(" ? `<@&${rolesToPing[webhookIndex]}>` : null,
 						embeds: [
@@ -184,10 +190,27 @@ async function checkVersion() {
 						],
 					}).catch((err) => {
 						console.warn(`Failed to send webhook: ${err}`);
-						axios.post(process.env.DISCORD_WEBHOOK_URL, {
-							content: `Failed to send webhook: ${err}! Please check the logs for more information.${process.env.ROLE_TO_PING !== "0" ? ` <@&${process.env.ROLE_TO_PING}>` : null}`,
+						axios.post(webhook, {
+							content: `Failed to send webhook: ${err}! Please check the logs for more information.${rolesToPing[webhookIndex] !== "0" ? ` <@&${rolesToPing[webhookIndex]}>` : null}`,
 						})
 					});
+
+					if (diff.includes("Diff too large to send!")) {
+						console.log("Sending follow-up message with diff file...");
+						await axios.post(webhook, {
+							content: "Freshly baked diff you ordered! x3",
+							file: createReadStream(diff_file_location)
+						}, {
+							headers: {
+								"Content-Type": "multipart/form-data"
+							}
+						}).catch((err) => {
+							console.warn(`Failed to send webhook for DIFF: ${err}`);
+							axios.post(webhook, {
+								content: `Failed to send webhook for DIFF file follow-up: ${err}! Please check the logs for more information.${rolesToPing[webhookIndex] !== "0" ? ` <@&${rolesToPing[webhookIndex]}>` : null}`,
+							})
+						});
+					}
 
 					webhookIndex++;
 				}
