@@ -167,6 +167,17 @@ async function checkVersion() {
 				console.warn(`channel_archive_meta.json does not exist for channel ${channel} therefore a diff cannot be generated! It will be created after configuration update...`);
 			}
 
+			console.log("Writing archive data to disk...");
+			writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), archiveDataJson);
+			console.log("Updating channel_archive_meta.json...");
+			writeFileSync(join(__dirname, "..", "data", channel, "channel_archive_meta.json"), JSON.stringify({
+				lastWrite: Date.now(),
+				latestVersion: latestVersionOnChannel.data.clientVersionUpload
+			}));
+			console.log("Updating config.json...");
+			configurationJson.latestArchival = `${channel}/${latestVersionOnChannel.data.clientVersionUpload}`;
+			writeFileSync(join(__dirname, "..", "config.json"), JSON.stringify(configurationJson));
+			
 			if (webhooksEnabled === true) {
 				const statInfo = statSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`));
 				const archiveInfo = await getArchiveStats();
@@ -225,17 +236,6 @@ async function checkVersion() {
 					webhookIndex++;
 				}
 			}
-
-			console.log("Writing archive data to disk...");
-			writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), archiveDataJson);
-			console.log("Updating channel_archive_meta.json...");
-			writeFileSync(join(__dirname, "..", "data", channel, "channel_archive_meta.json"), JSON.stringify({
-				lastWrite: Date.now(),
-				latestVersion: latestVersionOnChannel.data.clientVersionUpload
-			}));
-			console.log("Updating config.json...");
-			configurationJson.latestArchival = `${channel}/${latestVersionOnChannel.data.clientVersionUpload}`;
-			writeFileSync(join(__dirname, "..", "config.json"), JSON.stringify(configurationJson));
 
 			console.log("Cleaning up temporary file...");
 			rmSync(extractionLocation, { recursive: true });
