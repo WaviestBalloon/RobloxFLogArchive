@@ -8,7 +8,7 @@ export async function gatherFLogs(directoryToUnzipped: string): Promise<Array<st
 	const playerExecutable = join(directoryToUnzipped, "RobloxPlayerBeta.exe");
 	console.log(`Inspecting and extracting FLogs from ${directoryToUnzipped}`);
 	
-	let output = execSync(`strings ${playerExecutable} | grep FLog::Output`, { encoding: "utf-8" });
+	let output = execSync(`strings ${playerExecutable} | grep FLog::`, { encoding: "utf-8" });
 	let flogs = output.split("\n").slice(0, -1); // Remove the last element because it's always a empty string
 
 	return flogs
