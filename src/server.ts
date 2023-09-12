@@ -155,6 +155,8 @@ async function checkVersion() {
 					if (diff.length == 0) {
 						console.log("Diff is empty, skipping archival...");
 						writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), "SKIPPED");
+						console.log("Cleaning up temporary file...");
+						rmSync(extractionLocation, { recursive: true });
 						continue;
 					}
 				}
