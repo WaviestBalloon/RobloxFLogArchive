@@ -128,11 +128,11 @@ async function checkVersion() {
 			const flogHash = createHash("md5").update(Buffer.from(flogs)).digest("hex");
 			console.log(`FLog hash for version ${latestVersionOnChannel.data.clientVersionUpload} is ${flogHash}!`);
 
-			console.log(`Archiving version ${latestVersionOnChannel.data.clientVersionUpload}...`);
+			console.log(`Creating archive data for version ${latestVersionOnChannel.data.clientVersionUpload}...`);
 			if (!existsSync(join(__dirname, "..", "data", channel))) {
 				mkdirSync(join(__dirname, "..", "data", channel));
 			}
-			writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), JSON.stringify({
+			const archiveDataJson = JSON.stringify({
 				rbxResponse: {
 					version: latestVersionOnChannel.data.version,
 					clientVersionUpload: latestVersionOnChannel.data.clientVersionUpload,
@@ -141,8 +141,7 @@ async function checkVersion() {
 				timestamp: Date.now(),
 				hash: flogHash,
 				flogs: flogs
-			}));
-			console.log(`Archived version ${latestVersionOnChannel.data.clientVersionUpload}!`);
+			});
 			
 			let diff: any
 			let diff_file_location: any
@@ -151,6 +150,14 @@ async function checkVersion() {
 				const previousFlogs = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `${previousArchiveMeta.latestVersion}.json`), "utf-8")).flogs;
 				diff = await generateDiff(flogs, previousFlogs);
 				console.log(`Generated diff for version ${latestVersionOnChannel.data.clientVersionUpload}!`);
+
+				if (configurationJson.doNotArchiveIfPreviousArchiveFLogsMatchDiff) {
+					if (diff.length == 0) {
+						console.log("Diff is empty, skipping archival...");
+						continue;
+					}
+				}
+
 				diff_file_location = join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.txt`);
 				writeFileSync(diff_file_location, diff.join("\n"));
 			} else {
@@ -216,6 +223,8 @@ async function checkVersion() {
 				}
 			}
 
+			console.log("Writing archive data to disk...");
+			writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), archiveDataJson);
 			console.log("Updating channel_archive_meta.json...");
 			writeFileSync(join(__dirname, "..", "data", channel, "channel_archive_meta.json"), JSON.stringify({
 				lastWrite: Date.now(),
