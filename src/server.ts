@@ -158,7 +158,7 @@ async function checkVersion() {
 			if (webhooksEnabled === true) {
 				const statInfo = statSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`));
 				const archiveInfo = await getArchiveStats();
-				if (!Array.isArray(diff) || diff.length == 0) { diff = "No diff available." } else { diff = diff.join("\n") };
+				if (!Array.isArray(diff) || diff.length == 0) { diff = "No diff available :(" } else { diff = diff.join("\n") };
 
 				console.log("Sending webhook(s)...");
 				let rolesToPing = process.env.ROLE_TO_PING.split(",");
@@ -168,11 +168,11 @@ async function checkVersion() {
 				
 				for (const webhook of webhooks) {
 					await axios.post(webhook, {
-						content: rolesToPing[webhookIndex] !== "0" ? `<@&${rolesToPing[webhookIndex]}>` : null,
+						content: rolesToPing[webhookIndex] !== "0" && diff !== "No diff available :(" ? `<@&${rolesToPing[webhookIndex]}>` : null,
 						embeds: [
 							{
 								title: "📥 New FLog archive!",
-								description: `Archive has been created for \`${latestVersionOnChannel.data.clientVersionUpload}\` in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nFLog hash: \`${flogHash}\`\n\nTotal archive storage size is now ${await humanFileSize(archiveInfo.totalSize)}.\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
+								description: `Archive has been created for \`${latestVersionOnChannel.data.clientVersionUpload}\` (\`${}\`) in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nHash: \`${flogHash}\`\nArchive size: \`${await humanFileSize(archiveInfo.totalSize)}\`\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
 								footer: {
 									text: "Roblox FLog Archival Program - Operation completed in " + (Date.now() - startTimer) + "ms",
 									icon_url: null
