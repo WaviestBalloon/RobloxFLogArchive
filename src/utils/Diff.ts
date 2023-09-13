@@ -1,6 +1,3 @@
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 export async function generateDiff(newArray: Array<string>, oldArray: Array<string>): Promise<Array<string>> {
 	let diffResult = [];
 	for (let i = 0; i < newArray.length; i++) {
