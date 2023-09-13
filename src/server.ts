@@ -61,13 +61,13 @@ async function getArchiveStats() {
 		readdirSync(join(__dirname, "..", "data", channel)).forEach(async (version) => {
 			version = join(__dirname, "..", "data", channel, version);
 			if (version.endsWith(".json") && !version.includes("channel_archive_meta")) {
-				console.log(`Found archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
 				const archiveFile = readFileSync(version, "utf-8");
+
 				if (archiveFile == "SKIPPED") {
-					console.log(`Found STUB archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
+					//console.log(`Found STUB archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
 					stubbedFiles += 1;
 				} else {
-					console.log(`Found archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
+					//console.log(`Found archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
 					const jsonParsed = JSON.parse(archiveFile);
 					totalSize += statSync(version).size;
 					versionFiles += 1;
