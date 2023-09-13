@@ -23,7 +23,7 @@ let hostname = configurationJson.hostname;
 const server = fastify({ logger: true });
 const axiosInstance = axios.create({
 	headers: {
-		"User-Agent": "Roblox FLog Archive Program - https://github.com/WaviestBalloon/RobloxFLogArchive" // Let's be nice and tell Roblox who we are :3
+		"User-Agent": "Roblox FLog Archive Program - https://github.com/WaviestBalloon/RobloxFLogArchive", // Let's be nice and tell Roblox who we are :3
 	}
 });
 const deploymentTempDirectory = join(__dirname, "..", "temp");
@@ -55,41 +55,54 @@ server.get("/api/getarchive/:channel/:version", async (request: FastifyRequest, 
 async function getArchiveStats() {
 	let totalSize = 0;
 	let versionFiles = 0;
+	let stubbedFiles = 0;
 	let flogArchives: any = {};
 	readdirSync(join(__dirname, "..", "data")).forEach(async (channel) => {
 		readdirSync(join(__dirname, "..", "data", channel)).forEach(async (version) => {
 			version = join(__dirname, "..", "data", channel, version);
 			if (version.endsWith(".json") && !version.includes("channel_archive_meta")) {
 				console.log(`Found archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
-				const archiveFile = JSON.parse(readFileSync(version, "utf-8"));
-				totalSize += statSync(version).size;
-				versionFiles += 1;
-				flogArchives[channel] = {
-					...flogArchives[channel],
-					[version.split("/")[version.split("/").length - 1].split(".")[0]]: {
-						timestamp: archiveFile.timestamp,
-						size: statSync(version).size,
-						hash: archiveFile.hash,
-						viewUrl: `https://${hostname}/api/getarchive/${channel}/${version.split("/")[version.split("/").length - 1].split(".")[0]}`
-					}
-				};
+				const archiveFile = readFileSync(version, "utf-8");
+				if (archiveFile == "SKIPPED") {
+					console.log(`Found STUB archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
+					stubbedFiles += 1;
+				} else {
+					console.log(`Found archived FLogs for ${version.split("/")[version.split("/").length - 1].split(".")[0]} in channel ${channel}...`);
+					const jsonParsed = JSON.parse(archiveFile);
+					totalSize += statSync(version).size;
+					versionFiles += 1;
+					flogArchives[channel] = {
+						...flogArchives[channel],
+						[version.split("/")[version.split("/").length - 1].split(".")[0]]: {
+							timestamp: jsonParsed.timestamp,
+							size: statSync(version).size,
+							hash: jsonParsed.hash,
+							viewUrl: `https://${hostname}/api/getarchive/${channel}/${version.split("/")[version.split("/").length - 1].split(".")[0]}`
+						}
+					};
+				}
 			}
 		});
 	});
 
-	return { totalSize, versionFiles, flogArchives };
+	return { totalSize, versionFiles, flogArchives, stubbedFiles };
 }
 server.get("/api/info", async (request: FastifyRequest, reply: FastifyReply) => {
-	const { totalSize, versionFiles, flogArchives } = await getArchiveStats();
+	const { totalSize, versionFiles, flogArchives, stubbedFiles } = await getArchiveStats();
 
 	reply.send({
 		uptime: process.uptime(),
 		channelsTracked: configurationJson.channelsToCheck,
 		versionsCurrentlyArchived: versionFiles,
 		latestArchival: `https://${hostname}/api/getarchive/${configurationJson.latestArchival}`,
-		archiveDataSize: {
-			bytes: totalSize,
-			humanReadable: await humanFileSize(totalSize)
+		archiveInfo: {
+			storage: {
+				bytes: totalSize,
+				humanReadable: await humanFileSize(totalSize)
+			},
+			stubbedFiles: stubbedFiles,
+			archiveFiles: versionFiles,
+			totalFiles: stubbedFiles + versionFiles
 		},
 		versionsAvailableInArchive: flogArchives
 	});

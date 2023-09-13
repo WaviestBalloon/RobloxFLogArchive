@@ -14,7 +14,7 @@ export async function download(versionHash: string, channel: string, axiosInstan
 		responseType: "arraybuffer"
 	}).catch((err: any) => {
 		console.warn(`Failed to download ${downloadURL}!`);
-		console.warn(err);
+		throw err
 	});
 	
 	if (!appZipDownload?.data) return;
