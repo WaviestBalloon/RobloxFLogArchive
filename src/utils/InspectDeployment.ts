@@ -9,7 +9,17 @@ export async function gatherFLogs(directoryToUnzipped: string): Promise<Array<st
 	let flogs = output.split("\n").slice(0, -1); // Remove the last element because it's always a empty string
 
 	for (let i = 0; i < flogs.length; i++) {
-		flogs[i] = flogs[i].slice(flogs[i].indexOf("[FLog::"));
+		let flog = flogs[i];
+		
+		if (flog.includes("[FLog::")) {
+			flog = flog.slice(flog.indexOf("[FLog::"));
+			flogs[i] = flog;
+		} else if (flog.includes("[DFLog::")) {
+			flog = flog.slice(flog.indexOf("[DFLog::"));
+			flogs[i] = flog;
+		} else {
+			throw new Error(`Could not determine Log type: ${flog}`);
+		}
 	}
 
 	return flogs
