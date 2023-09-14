@@ -1,8 +1,5 @@
 import { execSync } from "node:child_process";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { join } from "node:path";
 
 export async function gatherFLogs(directoryToUnzipped: string): Promise<Array<string>> {
 	const playerExecutable = join(directoryToUnzipped, "RobloxPlayerBeta.exe");
@@ -10,6 +7,10 @@ export async function gatherFLogs(directoryToUnzipped: string): Promise<Array<st
 	
 	let output = execSync(`strings ${playerExecutable} | grep FLog::`, { encoding: "utf-8" });
 	let flogs = output.split("\n").slice(0, -1); // Remove the last element because it's always a empty string
+
+	for (let i = 0; i < flogs.length; i++) {
+		flogs[i] = flogs[i].slice(flogs[i].indexOf("[FLog::"));
+	}
 
 	return flogs
 }

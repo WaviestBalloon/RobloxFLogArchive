@@ -41,7 +41,7 @@ server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
 server.get("/api/getarchive/:channel/:version", async (request: FastifyRequest, reply: FastifyReply) => {
 	//@ts-ignore
 	if (!configurationJson.channelsToCheck.includes(request.params?.channel)) {
-		reply.code(404).send("Channel not found.");
+		reply.code(404).send("Channel is not being tracked.");
 	} else {
 		//@ts-ignore
 		if (!existsSync(join(__dirname, "..", "data", request.params?.channel, `${request.params?.version}.json`))) {
