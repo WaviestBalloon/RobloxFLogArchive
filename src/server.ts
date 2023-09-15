@@ -156,16 +156,16 @@ async function checkVersion() {
 				flogs: flogs
 			});
 			
-			let diff: any
+			let diffInfo: { diffResult: Array<string>, additions: number, removals: number } = { diffResult: [], additions: 0, removals: 0 };
 			let diff_file_location: any
 			if (existsSync(join(__dirname, "..", "data", channel, `channel_archive_meta.json`))) {
 				const previousArchiveMeta = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `channel_archive_meta.json`), "utf-8"));
 				const previousFlogs = JSON.parse(readFileSync(join(__dirname, "..", "data", channel, `${previousArchiveMeta.latestVersion}.json`), "utf-8")).flogs;
-				diff = await generateDiff(flogs, previousFlogs);
+				diffInfo = await generateDiff(flogs, previousFlogs);
 				console.log(`Generated diff for version ${latestVersionOnChannel.data.clientVersionUpload}!`);
 
 				if (configurationJson.doNotArchiveIfPreviousArchiveFLogsMatchDiff) {
-					if (diff.length == 0) {
+					if (diffInfo.diffResult.length == 0) {
 						console.log("Diff is empty, skipping archival...");
 						writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), "SKIPPED");
 						console.log("Cleaning up temporary file...");
@@ -175,7 +175,7 @@ async function checkVersion() {
 				}
 
 				diff_file_location = join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.txt`);
-				writeFileSync(diff_file_location, diff.join("\n"));
+				writeFileSync(diff_file_location, diffInfo.diffResult.join("\n"));
 			} else {
 				console.warn(`channel_archive_meta.json does not exist for channel ${channel} therefore a diff cannot be generated! It will be created after configuration update...`);
 			}
@@ -194,6 +194,7 @@ async function checkVersion() {
 			if (webhooksEnabled === true) {
 				const statInfo = statSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`));
 				const archiveInfo = await getArchiveStats();
+				let diff: string | Array<string> = diffInfo.diffResult;
 				if (!Array.isArray(diff) || diff.length == 0) { diff = "No diff available :(" } else { diff = diff.join("\n") };
 
 				console.log("Sending webhook(s)...");
@@ -203,7 +204,7 @@ async function checkVersion() {
 				if (rolesToPing.length !== webhooks.length) { console.warn("The amount of roles to ping does not match the amount of webhooks! Please check your .env file!"); }
 				
 				for (const webhook of webhooks) {
-					if (diff.length > 4096) {
+					if (diff.length > 4000) {
 						diff = "Diff too large to send! A follow-up message will be posted with diff attached as a file... D:";
 					}
 
@@ -219,7 +220,7 @@ async function checkVersion() {
 								}
 							},
 							{
-								description: `\`\`\`diff\n${diff}\n\`\`\``,
+								description: `🟢 *${diffInfo.additions}* 🔴 *${diffInfo.removals}*\`\`\`diff\n${diff}\n\`\`\``,
 							}
 						],
 					}).catch((err) => {
