@@ -205,7 +205,7 @@ async function checkVersion() {
 				
 				for (const webhook of webhooks) {
 					if (diff.length > 4000) {
-						diff = "Diff too large to send! A follow-up message will be posted with diff attached as a file... D:";
+						diff = "Diff too large to send! A follow-up message will be posted with diff attached as a file...";
 					}
 
 					await axios.post(webhook, {
@@ -220,7 +220,7 @@ async function checkVersion() {
 								}
 							},
 							{
-								description: `🟢 *${diffInfo.additions}* 🔴 *${diffInfo.removals}*\`\`\`diff\n${diff}\n\`\`\``,
+								description: `***+ ${diffInfo.additions}*** ***- ${diffInfo.removals}***\`\`\`diff\n${diff}\n\`\`\``,
 							}
 						],
 					}).catch((err) => {
