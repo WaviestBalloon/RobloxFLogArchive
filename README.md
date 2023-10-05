@@ -8,7 +8,6 @@ A proper frontend will be created at a later date!
 ## Why though??
 
 Roblox engineers sometimes add little easter eggs that get appended to your Roblox log files during client initialisation, I always enjoyed seeing them whilst inspecting my log files and have decided to start a archival program to keep a history of all FLogs found in the Player binary.
-As a bonus, normal FLogs will not be excluded from being archived. (Because that would be too much work for my poor brain x3)
 
 Additionally, I may also expand FLog archives to not just the Player binary but also the Studio binary.
 
