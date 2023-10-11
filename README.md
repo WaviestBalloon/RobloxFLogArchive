@@ -34,6 +34,12 @@ Optionally, you can set up Discord webhook notifications for when new FLogs are 
 - `DISCORD_WEBHOOK_URL` - The URL of the Discord webhook
 - `ROLE_TO_PING` - Set to `0` if you do not want to ping any role, if you do want to ping a role change it to the Role ID and make sure the role is pingable
 
+You can have multiple webhooks specified but they have to be sperated by commas, example: 
+```
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/0/0,https://discord.com/api/webhooks/1/1
+ROLE_TO_PING=1234567890,0
+```
+
 > [!WARNING]
 > **Do not modify `config.json` during the server runtime!** It may lead to any changes made being discarded/overwritten! Make sure you stop the server process, make changes to the file and then restart the process again.
 >
