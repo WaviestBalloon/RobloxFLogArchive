@@ -122,11 +122,8 @@ server.listen({ port: Number(process.env.PORT) || 3000, host: "0.0.0.0" }, (err,
 	console.log(`Server listening on ${address}`);
 });
 
-async function checkVersion() {
-	console.log("Checking versions...");
-
-	for (const channel of configurationJson.channelsToCheck) {
-		const latestVersionOnChannel = await axiosInstance.get(`https://clientsettings.roblox.com/v2/client-version/WindowsPlayer/channel/${channel}`);
+async function archiveRoutine(channel: string) {
+	const latestVersionOnChannel = await axiosInstance.get(`https://clientsettings.roblox.com/v2/client-version/WindowsPlayer/channel/${channel}`);
 		console.log(`Latest version on channel ${channel} is ${latestVersionOnChannel.data.clientVersionUpload}`);
 
 		if (!existsSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`))) {
@@ -171,7 +168,7 @@ async function checkVersion() {
 						writeFileSync(join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}.json`), "SKIPPED");
 						console.log("Cleaning up temporary file...");
 						rmSync(extractionLocation, { recursive: true });
-						continue;
+						return;
 					}
 				}
 
@@ -256,6 +253,21 @@ async function checkVersion() {
 			rmSync(extractionLocation, { recursive: true });
 		} else {
 			console.log(`Version ${latestVersionOnChannel.data.clientVersionUpload} has already been archived, no changes...`);
+		}
+}
+
+async function checkVersion() {
+	console.log("Checking versions...");
+
+	for (const channel of configurationJson.channelsToCheck) {
+		try {
+			await archiveRoutine(channel);
+		} catch (err) {
+			if (err.toString().includes("401")) {
+				console.error(`Failed to archive channel ${channel}! Skipping...\nError: ${err}\nThis is probably because you're trying to fetch from a restricted deployment channel, best to remove it from your config.json file!`);
+			} else {
+				console.error(`Failed to archive channel ${channel}! Skipping...\nError: ${err}`);
+			}
 		}
 	}
 }
