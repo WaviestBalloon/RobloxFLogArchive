@@ -138,6 +138,7 @@ async function checkVersion() {
 			console.log(`Extracted version ${latestVersionOnChannel.data.clientVersionUpload} to ${extractionLocation}...`);
 			const flogs = await gatherFLogs(extractionLocation);
 			console.log(`Gathered FLogs for version ${latestVersionOnChannel.data.clientVersionUpload} to ${join(__dirname, "..", "data", "flogs", latestVersionOnChannel.data.clientVersionUpload)}...`);
+			//@ts-ignore
 			const flogHash = createHash("md5").update(Buffer.from(flogs)).digest("hex");
 			console.log(`FLog hash for version ${latestVersionOnChannel.data.clientVersionUpload} is ${flogHash}!`);
 
