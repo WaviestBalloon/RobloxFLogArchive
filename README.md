@@ -58,3 +58,6 @@ ROLE_TO_PING=1234567890,0
 - `You are the next heir to the deceased king of Congo. Claim your prize today!`
 - `When I get sad, I just stop being sad and be awesome instead!`
 - `Hi, this is Alex! I am surprised if you are reading this, have a good day.`
+- `Meowdy, purrtners`
+- `live long and prosper`
+- `Hello to the person reading this! I know you are smiling :)`
