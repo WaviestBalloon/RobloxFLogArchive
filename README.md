@@ -7,7 +7,9 @@ A proper frontend will be created at a later date!
 
 ## Why though??
 
-Roblox engineers sometimes add little easter eggs that get appended to your Roblox log files during client initialisation, I always enjoyed seeing them whilst inspecting my log files and have decided to start a archival program to keep a history of all FLogs found in the Player binary.
+~~Roblox engineers sometimes add little easter eggs that get appended to your Roblox log files during client initialisation, I always enjoyed seeing them whilst inspecting my log files and have decided to start a archival program to keep a history of all FLogs found in the Player binary.~~
+
+Unfortunately, such easter eggs have been permanently axed from the binaries from non-`LIVE` deployment channels and now that `LIVE` channel is the only non-restricted channel... It's not impossible to find them. 😔
 
 Additionally, I may also expand FLog archives to not just the Player binary but also the Studio binary.
 
