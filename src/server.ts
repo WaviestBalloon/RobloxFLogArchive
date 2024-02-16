@@ -40,15 +40,22 @@ server.get("/", async (request: FastifyRequest, reply: FastifyReply) => {
 });
 server.get("/api/getarchive/:channel/:version", async (request: FastifyRequest, reply: FastifyReply) => {
 	//@ts-ignore
-	if (!configurationJson.channelsToCheck.includes(request.params?.channel)) {
-		reply.code(404).send("Channel is not being tracked.");
+	if (!existsSync(join(__dirname, "..", "data", request.params?.channel))) {
+		reply.code(404).send("Unable to find Channel in archive.");
 	} else {
 		//@ts-ignore
 		if (!existsSync(join(__dirname, "..", "data", request.params?.channel, `${request.params?.version}.json`))) {
 			reply.code(404).send("Version not found.");
 		} else {
 			//@ts-ignore
-			reply.send(JSON.parse(readFileSync(join(__dirname, "..", "data", request.params?.channel, `${request.params?.version}.json`), "utf-8")));
+			let json = JSON.parse(readFileSync(join(__dirname, "..", "data", request.params?.channel, `${request.params?.version}.json`), "utf-8"));
+			//@ts-ignore
+			if (!configurationJson.channelsToCheck.includes(request.params?.channel)) {
+				json["notice"] = "This channel is no longer being tracked, this archive is here for historical purposes only."
+			}
+
+			//@ts-ignore
+			reply.send(json, "utf-8");
 		}
 	}
 });
@@ -213,7 +220,7 @@ async function archiveRoutine(channel: string) {
 								title: "📥 New FLog archive!",
 								description: `Archive has been created for \`${latestVersionOnChannel.data.clientVersionUpload}\` (\`${latestVersionOnChannel.data.version}\`) in channel \`${channel}\` <t:${Math.floor(Date.now() / 1000)}:R>!\nArchive size: \`${await humanFileSize(statInfo.size)}\`\nHash: \`${flogHash}\`\nTotal archive storage size: \`${await humanFileSize(archiveInfo.totalSize)}\`\n[View Archive via API](https://${hostname}/api/getarchive/${channel}/${latestVersionOnChannel.data.clientVersionUpload})`,
 								footer: {
-									text: "Roblox FLog Archival Program - Operation completed in " + (Date.now() - startTimer) + "ms",
+									text: "Operation completed in " + (Date.now() - startTimer) + "ms",
 									icon_url: null
 								}
 							},
