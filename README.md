@@ -9,7 +9,9 @@ A proper frontend will be created at a later date!
 
 ~~Roblox engineers sometimes add little easter eggs that get appended to your Roblox log files during client initialisation, I always enjoyed seeing them whilst inspecting my log files and have decided to start a archival program to keep a history of all FLogs found in the Player binary.~~
 
-Unfortunately, such easter eggs have been permanently axed from the binaries from non-`LIVE` deployment channels and now that `LIVE` channel is the only non-restricted channel... It's not impossible to find them. 😔
+~~Unfortunately, such easter eggs have been permanently axed from the binaries from non-`LIVE` deployment channels and now that `LIVE` channel is the only non-restricted channel... It's not impossible to find them. 😔~~
+
+Nevermind. (They came back after a few deployments)
 
 Additionally, I may also expand FLog archives to not just the Player binary but also the Studio binary.
 
@@ -63,3 +65,5 @@ ROLE_TO_PING=1234567890,0
 - `Meowdy, purrtners`
 - `live long and prosper`
 - `Hello to the person reading this! I know you are smiling :)`
+- `Hello is this the Krusty Krab?`
+- `Domain Expansion, Fresh Platypus Cheese Launcher.`
