@@ -179,7 +179,7 @@ async function archiveRoutine(channel: string) {
 					}
 				}
 
-				diff_file_location = join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.txt`);
+				diff_file_location = join(__dirname, "..", "data", channel, `${latestVersionOnChannel.data.clientVersionUpload}-v-${previousArchiveMeta.latestVersion}-diff.diff`);
 				writeFileSync(diff_file_location, diffInfo.diffResult.join("\n"));
 			} else {
 				console.warn(`channel_archive_meta.json does not exist for channel ${channel} therefore a diff cannot be generated! It will be created after configuration update...`);
@@ -245,9 +245,9 @@ async function archiveRoutine(channel: string) {
 								"Content-Type": "multipart/form-data"
 							}
 						}).catch((err) => {
-							console.warn(`Failed to send webhook for DIFF: ${err}`);
+							console.warn(`Failed to send webhook for diff: ${err}`);
 							axios.post(webhook, {
-								content: `Failed to send webhook for DIFF file follow-up: ${err}! Please check the logs for more information.${rolesToPing[webhookIndex] !== "0" ? ` <@&${rolesToPing[webhookIndex]}>` : null}`,
+								content: `Failed to send webhook for diff file follow-up: ${err}! Please check the logs for more information.${rolesToPing[webhookIndex] !== "0" ? ` <@&${rolesToPing[webhookIndex]}>` : null}`,
 							})
 						});
 					}
