@@ -133,3 +133,5 @@ dist
 
 /data/
 /temp/
+
+config.json
