@@ -54,7 +54,7 @@ ROLE_TO_PING=1234567890,0
 - `Hello from your car's extended warranty!`
 - `Hi rawr to author of CLI 72542`
 - `Hello, it's builderman. I lost my wallet and need you to wire me a few hundred dollars.`
-- `Hi! Ok, does venmo work?` (Probably a reply to the FLog above)
+- `Hi! Ok, does venmo work?` (a reply to the FLog above)
 - `Did you ever hear the tragedy of Darth Plagueis The Wise? I thought not.`
 - `Hello everyone! Hope I'm doing this right`
 - `WAZZZZUP`
@@ -67,3 +67,5 @@ ROLE_TO_PING=1234567890,0
 - `Hello to the person reading this! I know you are smiling :)`
 - `Hello is this the Krusty Krab?`
 - `Domain Expansion, Fresh Platypus Cheese Launcher.`
+- `Unexpected error, missing Hair`
+- `Hello I am human.`
